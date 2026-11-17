@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaphyGram 📸</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+body{background:#000;color:white}
+a{color:white;text-decoration:none}
+.app{display:flex;max-width:1300px;margin:auto;min-height:100vh}
+/* SIDEBAR - Like Instagram */
+.sidebar{width:250px;border-right:1px solid #262626;padding:20px 12px;position:sticky;top:0;height:100vh}
+.logo{font-family:cursive;font-size:30px;padding:10px 12px;margin-bottom:20px}
+.logo span{color:#ff0066}
+.nav-item{display:flex;align-items:center;gap:14px;padding:12px;border-radius:10px;font-size:16px;cursor:pointer}
+.nav-item:hover{background:#1a1a1a}
+.nav-item.active{font-weight:700}
+.nav-item .ico{font-size:24px}
+.nav-item .ava{width:28px;height:28px;border-radius:50%;background:linear-gradient(45deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5);display:flex;align-items:center;justify-content:center;font-size:14px}
+/* MAIN */
+.main{flex:1;padding:0 20px;max-width:650px;margin:auto}
+.stories{display:flex;gap:14px;padding:18px 0;overflow-x:auto;scrollbar-width:none}
+.stories::-webkit-scrollbar{display:none}
+.story{text-align:center;cursor:pointer;flex-shrink:0}
+.story .ring{width:64px;height:64px;border-radius:50%;padding:3px;background:linear-gradient(45deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5)}
+.story .ring div{width:100%;height:100%;border-radius:50%;background:#111;display:flex;align-items:center;justify-content:center;font-size:28px;border:2px solid #000}
+.story .ring.seen{background:#333}
+.story p{font-size:12px;margin-top:4px;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* POST */
+.post{border-bottom:1px solid #262626;padding:18px 0}
+.post-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.post-head .ava{width:40px;height:40px;border-radius:50%;background:linear-gradient(45deg,#feda75,#fa7e1e,#d62976);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer}
+.post-head b{font-size:14px}
+.post-head span{color:#a8a8a8;font-size:12px}
+.post-head .more{margin-left:auto;font-size:20px;cursor:pointer}
+.post-img{width:100%;border-radius:8px;aspect-ratio:1/1;background:linear-gradient(135deg,#222,#444);display:flex;align-items:center;justify-content:center;font-size:100px;cursor:pointer;position:relative;overflow:hidden}
+.post-img .like-anim{position:absolute;font-size:90px;opacity:0;transition:0.3s;pointer-events:none}
+.post-actions{display:flex;gap:14px;padding:12px 0 6px;font-size:26px;align-items:center}
+.post-actions span{cursor:pointer}
+.post-actions .save{margin-left:auto}
+.likes{font-weight:600;font-size:14px}
+.caption{font-size:14px;line-height:1.5;margin:4px 0}
+.caption b{margin-right:4px}
+.comments{color:#a8a8a8;font-size:14px;cursor:pointer;margin:4px 0}
+.add-comment{display:flex;gap:8px;margin-top:8px;border-top:1px solid #262626;padding-top:8px}
+.add-comment input{flex:1;background:none;border:none;outline:none;color:white;font-size:14px}
+.add-comment button{background:none;border:none;color:#0095f6;font-weight:600;cursor:pointer}
+/* RIGHT */
+.right{width:320px;padding:30px 20px;display:block}
+.right .me{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.right .me .ava{width:44px;height:44px;border-radius:50%;background:linear-gradient(45deg,#feda75,#d62976);display:flex;align-items:center;justify-content:center;font-size:22px}
+.right .suggest{font-weight:600;font-size:14px;color:#a8a8a8;display:flex;justify-content:space-between;margin:12px 0}
+.suggest-item{display:flex;align-items:center;gap:10px;margin:12px 0}
+.suggest-item .ava{width:36px;height:36px;border-radius:50%;background:#333;display:flex;align-items:center;justify-content:center;font-size:18px}
+.suggest-item button{margin-left:auto;background:none;border:none;color:#0095f6;font-weight:600;cursor:pointer;font-size:12px}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99;justify-content:center;align-items:center;padding:15px}
+.modalBox{background:#262626;padding:22px;border-radius:14px;max-width:450px;width:100%;text-align:center}
+.modalBox input,.modalBox textarea,.modalBox select{width:100%;padding:12px;border-radius:8px;border:1px solid #444;background:#111;color:white;margin:8px 0;outline:none}
+.modalBox button{padding:11px 22px;border-radius:8px;border:none;font-weight:700;cursor:pointer;margin:6px}
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;width:100%;background:#000;border-top:1px solid #262626;padding:10px;justify-content:space-around;font-size:26px;z-index:10}
+@media(max-width:900px){.right{display:none}.sidebar{width:80px}.sidebar .label{display:none}.logo{font-size:22px;text-align:center}}
+@media(max-width:600px){.sidebar{display:none}.bottom-nav{display:flex}.main{padding-bottom:60px}.stories{padding:12px 0}}
+</style>
+</head>
+<body>
+
+<div class="app">
+<!-- SIDEBAR -->
+<div class="sidebar">
+<div class="logo">Taphy<span>Gram</span> 📸</div>
+<div class="nav-item active"><span class="ico">🏠</span><span class="label">Home</span></div>
+<div class="nav-item" onclick="showExplore()"><span class="ico">🔍</span><span class="label">Search</span></div>
+<div class="nav-item" onclick="showExplore()"><span class="ico">🧭</span><span class="label">Explore</span></div>
+<div class="nav-item" onclick="showReels()"><span class="ico">🎬</span><span class="label">Reels</span></div>
+<div class="nav-item" onclick="alert('Messages: 3 new messages from Mary, Brian, Kevin!')"><span class="ico">💬</span><span class="label">Messages <span style="background:#ff3040;color:white;font-size:11px;padding:2px 7px;border-radius:20px">3</span></span></div>
+<div class="nav-item" onclick="alert('Notifications: Mary liked your photo, Brian started following you!')"><span class="ico">❤️</span><span class="label">Notifications</span></div>
+<div class="nav-item" onclick="openCreate()"><span class="ico">➕</span><span class="label">Create</span></div>
+<div class="nav-item" onclick="showProfile()"><span class="ava">👨‍💻</span><span class="label">Profile</span></div>
+<div class="nav-item" onclick="alert('Settings - TaphyGram v1.0')"><span class="ico">☰</span><span class="label">More</span></div>
+<div style="margin-top:20px;padding:12px;background:#1a1a1a;border-radius:12px">
+<p style="font-size:13px;color:#a8a8a8">👋 Hello <b style="color:white">Taphy Samson</b></p>
+<p style="font-size:12px;color:#a8a8a8;margin-top:4px">1,240 followers • 89 following</p>
+<button style="background:#0095f6;color:white;border:none;padding:8px 14px;border-radius:8px;font-weight:600;cursor:pointer;margin-top:8px;width:100%" onclick="openCreate()">+ Create Post</button>
+</div>
+</div>
+
+<!-- MAIN FEED -->
+<div class="main" id="mainFeed">
+<!-- STORIES -->
+<div class="stories" id="stories"></div>
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+<h3>Feed - <span id="postCount">5</span> Posts</h3>
+<button style="background:#0095f6;color:white;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer" onclick="openCreate()">+ New Post</button>
+</div>
+
+<div id="feed"></div>
+
+<div style="text-align:center;padding:20px;color:#a8a8a8">
+<p>You're all caught up! 🎉</p>
+<p style="font-size:12px;margin-top:6px">Follow more people to see more posts.</p>
+</div>
+</div>
+
+<!-- RIGHT -->
+<div class="right">
+<div class="me">
+<div class="ava">👨‍💻</div>
+<div><b style="font-size:14px">taphy.samson</b><br><span style="color:#a8a8a8;font-size:13px">Taphy Samson</span></div>
+<button style="margin-left:auto;background:none;border:none;color:#0095f6;font-weight:600;cursor:pointer" onclick="alert('Switched account!')">Switch</button>
+</div>
+<div class="suggest"><span>Suggested for you</span><span style="color:white;cursor:pointer" onclick="alert('See all suggestions!')">See All</span></div>
+<div id="suggestList"></div>
+<p style="color:#737373;font-size:11px;line-height:1.6;margin-top:16px">About • Help • Press • API • Jobs • Privacy • Terms • Locations • Language • Meta Verified<br><br>© 2026 TAPHYGRAM FROM TAPHY</p>
+</div>
+</div>
+
+<!-- BOTTOM NAV FOR PHONE -->
+<div class="bottom-nav">
+<span onclick="location.reload()">🏠</span>
+<span onclick="showExplore()">🔍</span>
+<span onclick="openCreate()">➕</span>
+<span onclick="showReels()">🎬</span>
+<span onclick="showProfile()">👨‍💻</span>
+</div>
+
+<!-- CREATE MODAL -->
+<div class="modal" id="createModal">
+<div class="modalBox">
+<h2>📸 Create New Post</h2>
+<p style="color:#a8a8a8;font-size:14px">Share a moment with Homabay!</p>
+<select id="newEmoji"><option>🏖️ Beach / Lake</option><option>⚽ Football</option><option>🍔 Food</option><option>🎧 Music</option><option>🏠 House</option><option>👨‍💻 Coding</option><option>🎓 School</option><option>🌅 Sunset</option></select>
+<textarea id="newCaption" placeholder="Write a caption... e.g. Beautiful day in Homabay! ❤️" rows="2"></textarea>
+<input type="text" id="newLocation" placeholder="Add location e.g. Homabay Town">
+<div>
+<button style="background:#0095f6;color:white" onclick="createPost()">Share Post</button>
+<button style="background:#333;color:white" onclick="closeCreate()">Cancel</button>
+</div>
+<p id="createResult" style="color:#00ff88;font-weight:bold;margin-top:10px"></p>
+</div>
+</div>
+
+<!-- STORY MODAL -->
+<div class="modal" id="storyModal">
+<div class="modalBox" style="max-width:350px;padding:0;overflow:hidden">
+<div id="storyContent" style="padding:30px 20px;font-size:80px;background:linear-gradient(135deg,#feda75,#d62976);min-height:350px;display:flex;flex-direction:column;justify-content:center;align-items:center"></div>
+<button style="background:#0095f6;color:white;width:100%;border-radius:0" onclick="closeStory()">Close Story ✕</button>
+</div>
+</div>
+
+<script>
+let posts=[
+{user:'taphy.samson',name:'Taphy Samson',ava:'👨‍💻',emoji:'🏆⚽',caption:'Homabay FC wins the cup! Best day ever! 🏆 Thank you to all fans!',likes:1240,liked:false,saved:false,loc:'Homabay Stadium',comments:['mary_akinyi: Congrats! 🎉','brian_o: Best team! 🔥']},
+{user:'mary_akinyi',name:'Mary Akinyi',ava:'👩‍🎓',emoji:'🌅',caption:'Sunset at Lake Victoria is so beautiful! Homabay is paradise ❤️',likes:892,liked:false,saved:false,loc:'Lake Victoria',comments:['taphy.samson: Wow! 😍','kevin_o: Beautiful!']},
+{user:'brian_o',name:'Brian Ochieng',ava:'⚽',emoji:'🍔',caption:'Best samosa in Homabay Town! You must try! 😋',likes:456,liked:false,saved:false,loc:'Homabay Town',comments:['taphy.samson: I want some! 😋']},
+{user:'dj_taphy',name:'DJ Taphy',ava:'🎧',emoji:'🎧🎶',caption:'New mix out now! Amapiano + Gengetone 🔥 Link in bio!',likes:2100,liked:false,saved:false,loc:'Homabay Club',comments:['mary_akinyi: Fire! 🔥🔥','brian_o: On repeat! 🎧']},
+{user:'homabay_eats',name:'Homabay Eats',ava:'🍔',emoji:'🐟',caption:'Fresh fish from Lake Victoria! Tilapia + Ugali = Heaven! 🐟',likes:678,liked:false,saved:false,loc:'Mbita',comments:['taphy.samson: Delicious!']},
+];
+let stories=[
+{name:'Your Story',emoji:'➕',mine:true},
+{name:'mary_akinyi',emoji:'👩‍🎓',seen:false},
+{name:'brian_o',emoji:'⚽',seen:false},
+{name:'dj_taphy',emoji:'🎧',seen:false},
+{name:'kevin_o',emoji:'🏍️',seen:false},
+{name:'homabay_eats',emoji:'🍔',seen:true},
+{name:'sarah_k',emoji:'🌸',seen:false},
+{name:'otieno_j',emoji:'👨‍🏫',seen:true},
+];
+let suggests=[
+{name:'kevin_o',desc:'Followed by mary_akinyi',ava:'🏍️'},
+{name:'sarah_k',desc:'New to TaphyGram',ava:'🌸'},
+{name:'otieno_j',desc:'Followed by brian_o',ava:'👨‍🏫'},
+];
+
+function render(){
+  document.getElementById('postCount').innerText=posts.length;
+  // Stories
+  let sHtml='';
+  stories.forEach((s,i)=>{
+    sHtml+='<div class="story" onclick="openStory('+i+')"><div class="ring '+(s.seen?'seen':'')+'"><div>'+s.emoji+'</div></div><p>'+s.name+'</p></div>';
+  });
+  document.getElementById('stories').innerHTML=sHtml;
+
+  // Feed
+  let html='';
+  posts.forEach((p,i)=>{
+    html+='<div class="post"><div class="post-head"><div class="ava">'+p.ava+'</div><div><b>'+p.user+'</b> • <span>2h</span><br><span>'+p.loc+'</span></div><div class="more" onclick="alert(\'Post options: Save, Share, Report\')">•••</div></div><div class="post-img" ondblclick="likePost('+i+',true)" onclick="if(event.detail==2) likePost('+i+',true)"><span style="font-size:110px">'+p.emoji+'</span><span class="like-anim" id="anim'+i+'">❤️</span></div><div class="post-actions"><span onclick="likePost('+i+')">'+(p.liked?'❤️':'🤍')+'</span><span onclick="focusComment('+i+')">💬</span><span onclick="sharePost(\''+p.user+'\')">📤</span><span class="save" onclick="savePost('+i+')">'+(p.saved?'🔖':'📌')+'</span></div><div class="likes">'+p.likes.toLocaleString()+' likes</div><div class="caption"><b>'+p.user+'</b> '+p.caption+'</div><div class="comments" onclick="alert(\''+p.comments.join('\\n')+'\')">View all '+p.comments.length+' comments</div><div style="font-size:13px;color:#a8a8a8;margin:4px 0">'+p.comments.map(c=>'<div><b>'+c.split(':')[0]+':</b> '+c.split(':')[1]+'</div>').join('')+'</div><div class="add-comment"><input type="text" id="comment'+i+'" placeholder="Add a comment..."><button onclick="addComment('+i+')">Post</button></div></div>';
+  });
+  document.getElementById('feed').innerHTML=html;
+
+  // Suggests
+  let sugHtml='';
+  suggests.forEach((s,i)=>{
+    sugHtml+='<div class="suggest-item"><div class="ava">'+s.ava+'</div><div><b style="font-size:13px">'+s.name+'</b><br><span style="color:#a8a8a8;font-size:12px">'+s.desc+'</span></div><button onclick="followSuggest(this)">Follow</button></div>';
+  });
+  document.getElementById('suggestList').innerHTML=sugHtml;
+}
+function likePost(i,fromDouble){
+  let p=posts[i];
+  if(fromDouble && !p.liked){
+    let anim=document.getElementById('anim'+i);
+    anim.style.opacity='1'; anim.style.transform='scale(1.2)';
+    setTimeout(()=>{ anim.style.opacity='0'; },600);
+  }
+  if(!p.liked){ p.likes++; p.liked=true; } else if(!fromDouble){ p.likes--; p.liked=false; }
+  render();
+}
+function savePost(i){ posts[i].saved=!posts[i].saved; render(); }
+function sharePost(user){ alert('Link copied! Share @'+user+' post with friends! 📤'); }
+function focusComment(i){ document.getElementById('comment'+i).focus(); }
+function addComment(i){
+  let inp=document.getElementById('comment'+i);
+  if(!inp.value){ alert('Write a comment first!'); return; }
+  posts[i].comments.push('taphy.samson: '+inp.value);
+  render();
+}
+function followSuggest(btn){ btn.innerText='Following'; btn.style.color='#a8a8a8'; }
+function openCreate(){ document.getElementById('createModal').style.display='flex'; }
+function closeCreate(){ document.getElementById('createModal').style.display='none'; }
+function createPost(){
+  let emoji=document.getElementById('newEmoji').value.split(' ')[0];
+  let caption=document.getElementById('newCaption').value || 'New post from Homabay! ❤️';
+  let loc=document.getElementById('newLocation').value || 'Homabay Town';
+  posts.unshift({user:'taphy.samson',name:'Taphy Samson',ava:'👨‍💻',emoji:emoji, caption:caption, likes:0, liked:false, saved:false, loc:loc, comments:[]});
+  document.getElementById('createResult').innerText='✅ Posted! Your post is live!';
+  document.getElementById('newCaption').value='';
+  setTimeout(()=>{ closeCreate(); render(); document.getElementById('createResult').innerText=''; },1000);
+}
+function openStory(i){
+  let s=stories[i];
+  stories[i].seen=true;
+  document.getElementById('storyContent').innerHTML='<div style="font-size:90px">'+s.emoji+'</div><p style="font-size:20px;font-weight:bold;color:white;margin-top:10px">@'+s.name+'</p><p style="font-size:14px;color:white">New story from Homabay! ❤️</p>';
+  document.getElementById('storyModal').style.display='flex';
+  render();
+}
+function closeStory(){ document.getElementById('storyModal').style.display='none'; }
+function showExplore(){
+  let grid = posts.map(p=>p.emoji).join('  ');
+  alert('🧭 EXPLORE PAGE\n\nTrending posts:\n'+grid+'\n\nTop Hashtags:\n#Homabay #LakeVictoria #Kenya #Football #Food');
+}
+function showReels(){
+  alert('🎬 REELS\n\n▶️ Playing: DJ Taphy - New Mix 🔥\n▶️ Next: Homabay Sunset 🌅\n▶️ Next: Football Highlights ⚽\n\nSwipe up for more reels!');
+}
+function showProfile(){
+  alert('👨‍💻 PROFILE: @taphy.samson\n\nPosts: '+posts.length+' | Followers: 1,240 | Following: 89\n\nBio: Building cool websites in Homabay 🇰🇪\n\nYour posts are at the top of feed!');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+render();
+</script>
+
+</body>
+</html>
